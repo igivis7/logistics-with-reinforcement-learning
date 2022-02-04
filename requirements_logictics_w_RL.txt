@@ -1,0 +1,7 @@
+numpy
+matplotlib
+tqdm
+gym
+tensorflow
+ray[rllib]
+ray[default]

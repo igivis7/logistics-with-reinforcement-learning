@@ -31,3 +31,10 @@ https://en.wikipedia.org/wiki/Knapsack_problem
 - Second, this problem has a very cheap (computationally) environment, which is in favor of your learning as you can easily try different algorithms and solution schemes
 - Third, it can have a very large action space, which is a very nice technical challenge, and also very much in attention of the community.
 - Forth, it is not far from a real application. One can easily build upon its solution many additional levels of complication. As soon as you have a working solution the door is opened for the next level.
+
+
+## Environment
+1. `conda create -n logistics_w_RL_v1 python=3.8`
+2. `conda activate logistics_w_RL_v1`
+3. `pip install --upgrade pip`
+4. `pip install -r requirements_logictics_w_RL.txt`
