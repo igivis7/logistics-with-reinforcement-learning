@@ -38,3 +38,4 @@ https://en.wikipedia.org/wiki/Knapsack_problem
 2. `conda activate logistics_w_RL_v1`
 3. `pip install --upgrade pip`
 4. `pip install -r requirements_logictics_w_RL.txt`
+5. `pip install ipykernel`
