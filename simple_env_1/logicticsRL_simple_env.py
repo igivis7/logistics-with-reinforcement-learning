@@ -121,7 +121,7 @@ print(q_table)
 import random
 
 num_episodes = 1000
-max_steps_per_episode = 10  # but it won't go higher than 1
+max_steps_per_episode = 100  # but it won't go higher than 1
 
 learning_rate = 0.01
 discount_rate = 0.99
@@ -153,15 +153,8 @@ for episode in range(num_episodes):
         new_state, reward, done, info = env.step(action)
 
         # Update Q-table for Q(s,a)
-        try:
-            q_table[state, action] = (1 - learning_rate) * q_table[state, action] + \
-                learning_rate * (reward + discount_rate * np.max(q_table[new_state, :]))
-        except:
-            print("This error")
-
         q_table[state, action] = (1 - learning_rate) * q_table[state, action] + \
             learning_rate * (reward + discount_rate * np.max(q_table[new_state, :]))
-
 
         state = new_state
         rewards_current_episode += reward
