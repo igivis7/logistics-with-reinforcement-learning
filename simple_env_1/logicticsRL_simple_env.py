@@ -68,7 +68,7 @@ class LogisticsRLBaseEnv(gym.Env):
                 or \
                 (min(
                     [self.items_weight[key] for key, value in self.items_depot.items() if value > 0]
-                ) <
+                ) >
                  (self.ship_size - self.current_state)):
             done_internal = True
 
