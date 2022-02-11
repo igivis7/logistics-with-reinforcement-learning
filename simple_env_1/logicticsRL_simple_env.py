@@ -28,6 +28,7 @@ class LogisticsRLBaseEnv(gym.Env):
         self.current_state = 0
         # the number of free cells on the ship
         self.ship_size = 10
+        self.free_ship_cells = 0
         # each action is loading a single box, max 5 boxes, all of them
         # actions ids are: 0,1,2,3,4
         self.action_space = gym.spaces.Discrete(5)
@@ -39,35 +40,35 @@ class LogisticsRLBaseEnv(gym.Env):
     def step(self, action_id):
         reward_internal = 0  # to ensure that variable always assigned
         done_internal = False
-        free_ship_cells = self.ship_size - self.current_state
+        self.free_ship_cells = self.ship_size - self.current_state
 
         if (action_id == 0) and \
                 (self.items_depot['item_0'] > 0) and \
-                (free_ship_cells >= self.items_weight['item_0']):
+                (self.free_ship_cells >= self.items_weight['item_0']):
             self.current_state += self.items_weight['item_0']
             reward_internal = self.items_weight['item_0']
             self.items_depot['item_0'] -= 1
         elif (action_id == 1) and \
                 (self.items_depot['item_1'] > 0) and \
-                (free_ship_cells >= self.items_weight['item_1']):
+                (self.free_ship_cells >= self.items_weight['item_1']):
             self.current_state += self.items_weight['item_1']
             reward_internal = self.items_weight['item_1']
             self.items_depot['item_1'] -= 1
         elif (action_id == 2) and \
                 (self.items_depot['item_2'] > 0) and \
-                (free_ship_cells >= self.items_weight['item_2']):
+                (self.free_ship_cells >= self.items_weight['item_2']):
             self.current_state += self.items_weight['item_2']
             reward_internal = self.items_weight['item_2']
             self.items_depot['item_2'] -= 1
         elif (action_id == 3) and \
                 (self.items_depot['item_3'] > 0) and \
-                (free_ship_cells >= self.items_weight['item_3']):
+                (self.free_ship_cells >= self.items_weight['item_3']):
             self.current_state += self.items_weight['item_3']
             reward_internal = self.items_weight['item_3']
             self.items_depot['item_3'] -= 1
         elif (action_id == 4) and \
                 (self.items_depot['item_4'] > 0) and \
-                (free_ship_cells >= self.items_weight['item_4']):
+                (self.free_ship_cells >= self.items_weight['item_4']):
             self.current_state += self.items_weight['item_4']
             reward_internal = self.items_weight['item_4']
             self.items_depot['item_4'] -= 1
@@ -79,7 +80,7 @@ class LogisticsRLBaseEnv(gym.Env):
                 or \
                 (min(
                     [self.items_weight[key] for key, value in self.items_depot.items() if value > 0]
-                ) > free_ship_cells):
+                ) > self.free_ship_cells):
             done_internal = True
 
         info_internal = {}
@@ -160,6 +161,7 @@ for episode in range(num_episodes):
         rewards_current_episode += reward
 
         if done:
+            rewards_current_episode -= env.free_ship_cells
             break
 
     # Exploration rate decay
