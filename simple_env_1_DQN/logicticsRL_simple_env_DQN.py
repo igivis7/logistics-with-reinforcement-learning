@@ -19,14 +19,18 @@ import numpy as np
 import random
 
 
+# =============================================================================
+# Creating a manual environment based on gym.Env
+# =============================================================================
 class LogisticsRLBaseEnv(gym.Env):
+    test_class_attribute = 55
     # === INIT ====
     def __init__(self):
         # 5 types of items, 1 or more - how many items are not yet used/processed
         # self.initial_items_depot = {'item_0': 10, 'item_1': 10, 'item_2': 10, 'item_3': 10, 'item_4': 10}
         # implementation of random number of items in the depot
         min_n_of_items = 1
-        max_n_of_items = 1
+        max_n_of_items = 10
         self.initial_items_depot = [random.randint(min_n_of_items, max_n_of_items),
                                     random.randint(min_n_of_items, max_n_of_items),
                                     random.randint(min_n_of_items, max_n_of_items),
@@ -101,10 +105,17 @@ class LogisticsRLBaseEnv(gym.Env):
     # not used in current implementation
     def close(self):
         pass
+# =============================================================================
+
+
+
+
+
 
 
 # =============================================================================
-
+# Q-Learning
+# =============================================================================
 
 env = LogisticsRLBaseEnv()
 
@@ -117,7 +128,7 @@ q_table = np.zeros(np.append(state_space_size, action_space_size))
 print(state_space_size)
 print(q_table[:, 0, 0, 0, 0, :])
 
-# =============================================================================
+# -----------------------------------------------------------------------------
 
 # some implementation of Q-learning
 
@@ -208,6 +219,77 @@ print(q_table[:, state_space_size[1]-1,
       state_space_size[2]-1,
       state_space_size[3]-1,
       state_space_size[4]-1, :].round(2))
+# =============================================================================
 
+
+
+
+
+# =============================================================================
+# DQN
+# =============================================================================
+
+# ---------------------------------------------
+from ray.rllib.agents import dqn
+from ray.tune.registry import register_env
+
+# register the custom environment
+select_env = "LogisticsRLBaseEnv-v0"
+register_env(select_env, lambda config: LogisticsRLBaseEnv())
+
+# configure the environment and create agent
+config = dqn.DEFAULT_CONFIG.copy()
+agent = dqn.DQNTrainer(config, env=select_env)
+
+# agent training 
+nr_training_iterations = 3
+for i in range(nr_training_iterations):
+    result = agent.train()
+    print("training_id", i, "mean_episode_reward", result["episode_reward_mean"])
+
+
+# agent testing version 1
+# ------------------------ 
+# it is possible just to creat an object of environment class
+env_4dqn_1 = LogisticsRLBaseEnv()
+
+env_4dqn_1.reset()
+sum_reward = 0
+for i in range(10):
+    action = env_4dqn_1.action_space.sample()
+    state, reward, done, info = env_4dqn_1.step(action)
+    sum_reward += reward
+print(sum_reward)
+print("the final state after test1 is", env_4dqn_1.current_state)
+
+# agent testing version 2
+# ------------------------ 
+# or one can regicter an environment for gym
+from gym.envs.registration import register
+register(
+   id="gymLogisticsRLBaseEnv-v0",
+   entry_point=LogisticsRLBaseEnv,
+)
+
+env_4dqn_2 = gym.make("gymLogisticsRLBaseEnv-v0")
+env_4dqn_2.reset()
+terminated = False
+total_reward = 0
+while not terminated:
+    # passing the state of the environment to the agent
+    state = np.array(env_4dqn_2.__getattr__("current_state"))
+    action = agent.compute_single_action(state)
+    s, r, terminated, _ = env_4dqn_2.step(action)
+    # env_4dqn_2.render()  # not used here because nothing to render 
+    # time.sleep(0.05)
+    total_reward += r
+print("the total reward for the trained agent is", total_reward)
+print("the final state after test2 is", env_4dqn_2.current_state)
+# =============================================================================
+
+
+
+# =============================================================================
+# =============================================================================
 pass  # just for a breakpoint
 # _  # just for a breakpoint
